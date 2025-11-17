@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<body>
+    <title>Water Tank Monitor and Temperature, Humidity, Pump Status</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            padding: 20px;
+            max-width: 1200px; /* Optional max width to prevent stretching on large screens */
+            width: 100%;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        h2 {
+            font-size: 28px;
+            color: #4a90e2;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            margin: 15px 0;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .average {
+            margin-top: 30px;
+            font-size: 16px;
+            color: #777;
+        }
+
+        .average span {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .data-box {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            background-color: #f0f4f8;
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .data-box p {
+            margin: 0;
+            font-size: 18px;
+            color: #4a90e2;
+        }
+
+        .data-box .value {
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .status-box {
+            background-color: #f0f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .status-box p {
+            font-size: 18px;
+            color: #4a90e2;
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+
+        .status-box .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .pump-box {
+            background-color: #f0f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pump-box p {
+            font-size: 18px;
+            color: #4a90e2;
+            display: inline;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .pump-box .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            align-items: center;
+            justify-content: center;
+            margin-left: 10px;
+        }
+
+        .green {
+            background-color: lightgreen;
+        }
+
+        .red {
+            background-color: red;
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .tank {
+            position: relative;
+            width: 100px;
+            height: 250px;
+            border: 3px solid #000;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0 auto; /* Center the tank */
+        }
+
+        .water {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background-color: #00bfff;
+            transition: height 0.5s;
+        }
+
+        .overflow-label {
+            margin: 20px 0;
+        }
+
+        .pump-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Make cards display in one row */
+        @media (min-width: 768px) {
+            .container {
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .card {
+                width: 48%; /* Take 48% of the width, leaving some space between cards */
+            }
+        }
+
+        /* For smaller screens, cards stack vertically */
+        @media (max-width: 767px) {
+            .card {
+                width: 100%; /* Full width on smaller screens */
+            }
+        }
+
+        /* Adjustments for Water Tank Card */
+        .water-level-card .label {
+            margin-bottom: 10px;
+        }
+
+        .button-box {
+            margin-top: 5%;
+        }
+
+/* CSS */
+.button-10 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 6px 14px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+  border-radius: 6px;
+  border: none;
+
+  color: #fff;
+  background: linear-gradient(180deg, #4B91F7 0%, #367AF6 100%);
+   background-origin: border-box;
+  box-shadow: 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.button-10:focus {
+  box-shadow: inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2), 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), 0px 0px 0px 3.5px rgba(58, 108, 217, 0.5);
+  outline: 0;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Water Tank Monitor -->
+        <div class="card water-level-card">
+            <h2>Water Tank Monitor</h2>
+            <div class="tank">
+                <div id="waterLevel" class="water"></div>
+            </div>
+            <div class="status-box">
+                <p class="overflow-label, data-box">Water Level: <span id="overflowDisplay">No level changes</span></p>
+                <p class="overflow-label, data-box">Last Updated: <span id="lastUpdated">-</span></p>
+            </div>
+            <div style="margin-top: 3%;">
+                <a href="http://192.168.30.183/lorawan/water_chart.html" style="text-decoration: none;">
+                    <button class="button-10" role="button">See water level data</button>
+                </a>
+            </div>  
+        </div>
+
+        <!-- Temperature, Humidity, and Pump Status -->
+        <div class="card">
+            <h2>Temperature, Humidity, and Pump Status</h2>
+
+            <!-- Last Temperature -->
+            <div class="data-box">
+                <p>Last Temperature:</p>
+                <p class="value" id="lastTemp">No data</p>
+            </div>
+
+            <!-- Last Humidity -->
+            <div class="data-box">
+                <p>Last Humidity:</p>
+                <p class="value" id="lastHumidity">No data</p>
+            </div>
+
+            <!-- Average Temperature and Humidity -->
+            <div class="average">
+                <p>Average Temperature (last 24 hours): <span id="avgTemp">No data</span> °C</p>
+                <p>Average Humidity (last 24 hours): <span id="avgHumidity">No data</span> %</p>
+            </div>
+
+            <!-- Pump Status -->
+            <div class="pump-box">
+                <p >Pump Status: 
+                    <span id="pumpStatus">No data</span>
+                    <div id="pumpCircle" class="circle green"></div>
+                </p>
+            </div>
+
+            <!-- Last Updated -->
+            <div class="status-box">
+                <p>Last Updated:  <span id="pumpStatusUpdated"> No data</span></p>
+            </div>
+
+            <div style="margin-top: 3%; display: flex; gap: 10px;">
+                <a href="http://192.168.30.183/lorawan/temp_chart.html" style="text-decoration: none;">
+                    <button class="button-10" role="button">See temperature data</button>
+                </a>
+                <a href="http://192.168.30.183/lorawan/humidity_chart.html" style="text-decoration: none;">
+                    <button class="button-10" role="button">See humidity data</button>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+
+    <script>
+        async function fetchTemperatureHumidityPump() {
+            try {
+                const response = await fetch('getTemperatureHumidityPump.php');
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error(data.error);
+                    return;
+                }
+
+                // Display the last temperature, humidity, averages, and pump status
+                document.getElementById('lastTemp').innerText = data.lastTemp || 'No data';
+                document.getElementById('lastHumidity').innerText = data.lastHumidity || 'No data';
+                document.getElementById('avgTemp').innerText = data.avgTemp || 'No data';
+                document.getElementById('avgHumidity').innerText = data.avgHumidity || 'No data';
+                document.getElementById('pumpStatus').innerText = data.pumpStatus === 1 ? 'ON' : 'OFF';
+                document.getElementById('pumpStatusUpdated').innerText = data.statusUpdated || 'No data';
+
+                // Update the pump status circle
+                const pumpCircleElement = document.getElementById('pumpCircle');
+                if (data.pumpStatus === 1) {
+                    pumpCircleElement.classList.remove('green');
+                    pumpCircleElement.classList.add('red');
+                } else {
+                    pumpCircleElement.classList.remove('red');
+                    pumpCircleElement.classList.add('green');
+                }
+
+            } catch (error) {
+                console.error('Error fetching temperature, humidity, and pump status data:', error);
+            }
+        }
+
+        // Update water level and pump status every 5 seconds
+        setInterval(fetchTemperatureHumidityPump, 5000);
+        fetchTemperatureHumidityPump(); // Initial call
+
+        async function fetchWaterLevel() {
+            try {
+                const response = await fetch('getWaterLevel.php');
+                const data = await response.json();
+
+                if (data.error) {
+                    console.error(data.error);
+                    return;
+                }
+
+                const waterLevelCm = parseInt(data.waterLevel, 10);
+                const lastUpdated = data.lastUpdated;
+
+                const maxWaterLevel = 47;
+
+                let displayText;
+                if (waterLevelCm > maxWaterLevel) {
+                    displayText = `${maxWaterLevel - waterLevelCm} cm`;
+                    const heightPercentage = ((maxWaterLevel - (waterLevelCm - maxWaterLevel)) / maxWaterLevel) * 100;
+                    document.getElementById('waterLevel').style.height = heightPercentage + '%';
+                } else {
+                    displayText = 'No overflow';
+                    document.getElementById('waterLevel').style.height = '100%';
+                }
+
+                document.getElementById('overflowDisplay').innerText = displayText;
+                document.getElementById('lastUpdated').innerText = lastUpdated;
+
+                updatePumpStatus(data.pumpStatus);
+
+            } catch (error) {
+                console.error('Error fetching water level data:', error);
+            }
+        }
+
+        function updatePumpStatus(status) {
+            const pumpStatusElement = document.getElementById('tankPumpStatus');
+            const pumpCircleElement = document.getElementById('tankPumpCircle');
+
+            if (status === 1) {
+                pumpStatusElement.innerText = 'ON';
+                pumpCircleElement.classList.remove('green');
+                pumpCircleElement.classList.add('red');
+            } else {
+                pumpStatusElement.innerText = 'OFF';
+                pumpCircleElement.classList.remove('red');
+                pumpCircleElement.classList.add('green');
+            }
+        }
+
+        setInterval(fetchWaterLevel, 5000);
+        fetchWaterLevel(); // Initial call
+    </script>
+</body>
+</html>
