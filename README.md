@@ -1,0 +1,1 @@
+This project is released as open-source software and is provided exclusively for non-commercial use. Any form of commercial exploitation, including but not limited to selling, licensing, sublicensing, or any activity intended for monetary gain, is strictly prohibited.
